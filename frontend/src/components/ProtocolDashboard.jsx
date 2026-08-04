@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import confetti from 'canvas-confetti'
 import { 
   Zap, Shield, Phone, Lock, Unlock, Users, Plus, Key, 
-  ArrowRight, Sparkles, CheckCircle2, Activity, Globe, X, ArrowLeft, CreditCard, Clock, UserCheck, UserX, Cpu, ArrowDownCircle, Eye, EyeOff
+  ArrowRight, Sparkles, CheckCircle2, Activity, Globe, X, ArrowLeft, CreditCard, Clock, UserCheck, UserX, Cpu, ArrowDownCircle, Eye, EyeOff, TrendingUp
 } from 'lucide-react'
 
 const RPC_URL = "http://127.0.0.1:8545"
@@ -83,7 +83,7 @@ export default function ProtocolDashboard({ onBackToLanding }) {
   const [isMoMoProcessing, setIsMoMoProcessing] = useState(false)
 
   // Authentication Form States
-  const [authMode, setAuthMode] = useState("signup") // "signup" or "login"
+  const [authMode, setAuthMode] = useState("signup")
   const [authName, setAuthName] = useState("Abena Osei")
   const [authPhone, setAuthPhone] = useState("0245667788")
   const [authPassword, setAuthPassword] = useState("1234")
@@ -271,7 +271,6 @@ export default function ProtocolDashboard({ onBackToLanding }) {
       localStorage.setItem("chainsusu_user_profile", JSON.stringify(userProfile))
       addActivity(`Account created sharp as ${authName}`)
     } else {
-      // Log In Mode
       const saved = localStorage.getItem("chainsusu_user_profile")
       let profileName = "Ama Appiah"
       let initials = "AA"
@@ -452,12 +451,13 @@ export default function ProtocolDashboard({ onBackToLanding }) {
   }
 
   const paidCount = memberStates.filter(m => m.paid).length
+  const potPercentage = Math.round((totalPot / 1500) * 100)
 
-  // AUTHENTICATION SCREEN (PHONE NUMBER & PASSWORD)
+  // AUTHENTICATION SCREEN
   if (!loggedInUser) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-page)", padding: "1.5rem" }}>
-        <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "32px", padding: "2.5rem 2rem", width: "100%", maxWidth: "460px", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+        <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "32px", padding: "2.5rem 2rem", width: "100%", maxWidth: "460px", boxShadow: "var(--shadow-glass)", textAlign: "center" }}>
           
           <div style={{ fontFamily: "var(--font-main)", fontSize: "2rem", fontWeight: 1000, color: "var(--text-primary)", marginBottom: "0.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
             <Zap size={28} style={{ color: "var(--indigo-primary)" }} />
@@ -467,7 +467,6 @@ export default function ProtocolDashboard({ onBackToLanding }) {
             Ghana Mobile Money Authentication
           </div>
 
-          {/* Sign Up / Log In Mode Switcher Tabs */}
           <div style={{ display: "flex", background: "var(--bg-subtle)", border: "1px solid var(--border-subtle)", padding: "0.3rem", borderRadius: "14px", marginBottom: "1.5rem" }}>
             <button 
               onClick={() => setAuthMode("signup")}
@@ -725,7 +724,7 @@ export default function ProtocolDashboard({ onBackToLanding }) {
 
         {/* INDIVIDUAL MULTI-GROUP MANAGEMENT HUB */}
         {userGroupIds.length > 0 && (
-          <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.5rem 1.75rem", marginBottom: "2rem", boxShadow: "var(--shadow-md)" }}>
+          <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.5rem 1.75rem", marginBottom: "2rem", boxShadow: "var(--shadow-glass)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Users size={20} style={{ color: "var(--indigo-primary)" }} />
@@ -779,8 +778,9 @@ export default function ProtocolDashboard({ onBackToLanding }) {
         {/* ACTIVE DASHBOARD VIEW */}
         {userGroupIds.length > 0 && (
           <div>
-            <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "28px", padding: "2rem", marginBottom: "2rem", boxShadow: "var(--shadow-lg)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.25rem" }}>
+            {/* HERO POT CARD WITH ANIMATED PROGRESS BAR */}
+            <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "28px", padding: "2rem", marginBottom: "2rem", boxShadow: "var(--shadow-glass)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.25rem", marginBottom: "1.5rem" }}>
                 <div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--indigo-primary)", fontWeight: 800, marginBottom: "0.4rem" }}>
                     SAVINGS CIRCLE #{activeGroupId}
@@ -793,12 +793,26 @@ export default function ProtocolDashboard({ onBackToLanding }) {
                   </p>
                 </div>
 
-                <div style={{ background: "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)", border: "1.5px solid #F59E0B", borderRadius: "22px", padding: "1.25rem 1.75rem", textAlign: "right" }}>
+                <div style={{ background: "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)", border: "1.5px solid #F59E0B", borderRadius: "22px", padding: "1.25rem 1.75rem", textAlign: "right", boxShadow: "0 8px 24px rgba(245, 158, 11, 0.18)" }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "#B45309", fontWeight: 800 }}>TOTAL ROUND POT</div>
                   <div style={{ fontFamily: "var(--font-main)", fontSize: "2.4rem", fontWeight: 1000, color: "#78350F" }}>
                     GHS {totalPot.toLocaleString()}
                   </div>
                   <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#92400E" }}>TARGET POT: GHS 1,500</div>
+                </div>
+              </div>
+
+              {/* PROGRESS METER */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", fontWeight: 800, color: "var(--text-secondary)", marginBottom: "0.5rem" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <TrendingUp size={15} style={{ color: "var(--indigo-primary)" }} />
+                    <span>Round Pot Progress</span>
+                  </span>
+                  <span>{potPercentage}% Collected (GHS {totalPot} / GHS 1,500)</span>
+                </div>
+                <div className="progress-meter-container">
+                  <div className="progress-meter-fill" style={{ width: `${potPercentage}%` }}></div>
                 </div>
               </div>
             </div>
@@ -807,7 +821,7 @@ export default function ProtocolDashboard({ onBackToLanding }) {
             <div className="dashboard-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "2rem" }}>
               {/* Left Column */}
               <div>
-                <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.75rem", boxShadow: "var(--shadow-md)" }}>
+                <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.75rem", boxShadow: "var(--shadow-glass)" }}>
                   
                   <div style={{ fontSize: "1.05rem", fontWeight: 900, color: "var(--text-primary)", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <Users size={20} style={{ color: "var(--indigo-primary)" }} />
@@ -822,14 +836,14 @@ export default function ProtocolDashboard({ onBackToLanding }) {
                       return (
                         <div key={m.name} className={`vault-node-card ${m.paid ? "paid" : ""}`} style={{ border: isCurrentUser ? "2px solid var(--indigo-primary)" : "1.5px solid var(--border-subtle)" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-                            <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: m.paid ? "#10B981" : "var(--indigo-gradient)", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-main)", fontSize: "1.05rem", fontWeight: 1000 }}>
+                            <div style={{ width: "44px", height: "44px", borderRadius: "14px", background: m.paid ? "#10B981" : "var(--indigo-gradient)", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-main)", fontSize: "1.05rem", fontWeight: 1000, boxShadow: m.paid ? "0 4px 14px rgba(16, 185, 129, 0.35)" : "0 4px 14px rgba(79, 70, 229, 0.35)" }}>
                               {m.initials}
                             </div>
                             <div>
                               <div style={{ fontFamily: "var(--font-main)", fontSize: "1.05rem", fontWeight: 900, display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                 {m.name}
-                                {isCurrentUser && <span style={{ background: "#EEF2FF", border: "1px solid var(--indigo-primary)", color: "var(--indigo-primary)", fontSize: "0.68rem", padding: "0.15rem 0.4rem", borderRadius: "6px" }}>YOU</span>}
-                                {m.isRecipient && <span style={{ background: "#FEF3C7", border: "1px solid #F59E0B", color: "#B45309", fontSize: "0.68rem", padding: "0.15rem 0.4rem", borderRadius: "6px" }}>BENEFICIARY</span>}
+                                {isCurrentUser && <span style={{ background: "#EEF2FF", border: "1px solid var(--indigo-primary)", color: "var(--indigo-primary)", fontSize: "0.68rem", padding: "0.15rem 0.4rem", borderRadius: "6px", fontWeight: 900 }}>YOU</span>}
+                                {m.isRecipient && <span style={{ background: "#FEF3C7", border: "1px solid #F59E0B", color: "#B45309", fontSize: "0.68rem", padding: "0.15rem 0.4rem", borderRadius: "6px", fontWeight: 900 }}>BENEFICIARY</span>}
                               </div>
                               <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 700 }}>
                                 MoMo: {m.phone} &bull; Rating: {m.score}/100
@@ -861,7 +875,7 @@ export default function ProtocolDashboard({ onBackToLanding }) {
 
               {/* Right Column: Activity History */}
               <div>
-                <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.75rem", boxShadow: "var(--shadow-md)" }}>
+                <div style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "24px", padding: "1.75rem", boxShadow: "var(--shadow-glass)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
                     <Activity size={20} style={{ color: "var(--indigo-primary)" }} />
                     <h3 style={{ fontFamily: "var(--font-main)", fontSize: "1.2rem", fontWeight: 900 }}>
