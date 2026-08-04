@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChainSusu — Rotating Savings Protocol Dashboard</title>
+
+<!-- Google Fonts: Nunito (Headlines & UI), JetBrains Mono (Data) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800;900;1000&display=swap" rel="stylesheet">
+
+<!-- Ethers.js v6 UMD -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+
+<!-- Canvas Confetti Library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+  :root {
+    --bg-page: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-subtle: #F1F5F9;
+    
+    --border-light: #E2E8F0;
+    --border-accent: rgba(99, 102, 241, 0.25);
+    
+    --indigo-primary: #4F46E5;
+    --indigo-light: #6366F1;
+    --indigo-gradient: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+    
+    --amber-primary: #D97706;
+    --amber-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    
+    --emerald-primary: #059669;
+    --emerald-gradient: linear-gradient(135deg, #10B981 0%, #047857 100%);
+
+    --cyan-primary: #0891B2;
+    --rose-primary: #E11D48;
+    
+    --text-primary: #0F172A;
+    --text-secondary: #334155;
+    --text-muted: #64748B;
+    
+    --font-title: 'Nunito', sans-serif;
+    --font-heading: 'Nunito', sans-serif;
+    --font-sans: 'Nunito', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 20px 45px -15px rgba(79, 70, 229, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Vibrant Blurred Ambient Orbs */
+  .ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.45;
+    animation: orbFloat 16s ease-in-out infinite alternate;
+  }
+
+  .glow-orb-1 {
+    top: -10%;
+    left: 10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(255,255,255,0) 70%);
+  }
+
+  .glow-orb-2 {
+    top: 40%;
+    right: -5%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(255,255,255,0) 70%);
+    animation-delay: -6s;
+  }
+
+  @keyframes orbFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-25px, -20px) scale(0.95); }
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Navigation Header */
+  header {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-light);
+    z-index: 100;
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .brand-logo {
+    font-family: var(--font-title);
+    font-size: 1.6rem;
+    font-weight: 1000;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, #0F172A 0%, #4338CA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand-badge {
+    background: var(--indigo-gradient);
+    color: #FFF;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    -webkit-text-fill-color: #FFF;
+  }
+
+  .net-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(5, 150, 105, 0.08);
+    border: 1px solid rgba(5, 150, 105, 0.25);
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--emerald-primary);
+    font-weight: 700;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--emerald-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--emerald-primary);
+    animation: livePulse 1.6s infinite;
+  }
+
+  @keyframes livePulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.5; }
+  }
+
+  .momo-login-box {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #FFF;
+    border: 1px solid var(--border-light);
+    padding: 0.4rem 1.1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .momo-select {
+    background: transparent;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* Top Auto-Demo Controller Bar */
+  .auto-demo-bar {
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-demo-trigger {
+    background: var(--indigo-gradient);
+    color: #FFF;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 900;
+    padding: 0.6rem 1.4rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-demo-trigger:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+  }
+
+  /* App Main Layout */
+  .app-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 6rem;
+  }
+
+  /* Hero Section Banner */
+  .hero-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 28px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366F1, #F59E0B, #10B981, #06B6D4);
+  }
+
+  .hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-title {
+    font-family: var(--font-title);
+    font-size: 2.4rem;
+    font-weight: 1000;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  .pot-highlight-card {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 1.5px solid #F59E0B;
+    border-radius: 22px;
+    padding: 1.35rem 2rem;
+    text-align: right;
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+  }
+
+  .pot-amount {
+    font-family: var(--font-title);
+    font-size: 2.6rem;
+    font-weight: 1000;
+    color: #78350F;
+    letter-spacing: -0.04em;
+    margin: 0.1rem 0;
+  }
+
+  /* Progress Meter */
+  .round-progress-box {
+    margin-top: 1.5rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 1.25rem;
+  }
+
+  .progress-bar-track {
+    height: 12px;
+    background: #E2E8F0;
+    border-radius: 50px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--indigo-gradient);
+    border-radius: 50px;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Grid Layouts */
+  .grid-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 960px) {
+    .grid-two-col {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .glass-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+  }
+
+  .glass-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .card-title {
+    font-family: var(--font-title);
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--text-primary);
+  }
+
+  .user-portal-card {
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
+    border-radius: 24px;
+    padding: 1.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn-gold {
+    background: var(--indigo-gradient);
+    color: #FFF;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 900;
+    padding: 0.95rem 1.6rem;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .btn-gold:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(79, 70, 229, 0.5);
+  }
+
+  .btn-gold:disabled {
+    background: #E2E8F0;
+    color: #94A3B8;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* Member Pass Cards */
+  .member-pass-card {
+    background: #FFF;
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: 1.4rem;
+    transition: all 0.3s ease;
+    margin-bottom: 1.2rem;
+  }
+
+  .member-pass-card.is-target {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+  }
+
+  .badge-pot-target {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    color: #B45309;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+  }
+
+  .badge-status-pill {
+    padding: 0.35rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-family: var(--font-heading);
+    font-weight: 900;
+  }
+
+  .status-paid {
+    background: #D1FAE5;
+    border: 1px solid #10B981;
+    color: #047857;
+  }
+
+  .status-pending {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    color: #B45309;
+  }
+
+  .reliability-meter-box {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--bg-subtle);
+    border-radius: 14px;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0;
+  }
+
+  .radial-score-container {
+    width: 50px;
+    height: 50px;
+    position: relative;
+  }
+
+  .radial-score-svg {
+    transform: rotate(-90deg);
+  }
+
+  .radial-score-bg {
+    stroke: #E2E8F0;
+  }
+
+  .radial-score-fill {
+    stroke-dasharray: 126;
+    stroke-dashoffset: 63;
+    transition: stroke-dashoffset 0.8s ease;
+  }
+
+  .radial-score-val {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+
+  .svg-center-card {
+    fill: #FFFFFF;
+    stroke: #6366F1;
+    stroke-width: 2;
+    rx: 18;
+  }
+
+  .svg-text-title {
+    fill: #0F172A;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 1000;
+  }
+
+  .svg-text-sub {
+    fill: #64748B;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+
+  .svg-flow-path {
+    fill: none;
+    stroke: #CBD5E1;
+    stroke-width: 2.5;
+    stroke-dasharray: 6, 6;
+    animation: flowDash 18s linear infinite;
+  }
+
+  @keyframes flowDash {
+    to { stroke-dashoffset: -120; }
+  }
+
+  .activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    background: var(--bg-subtle);
+    border-left: 3.5px solid var(--indigo-primary);
+    border-radius: 0 12px 12px 0;
+    padding: 0.8rem 1.1rem;
+    font-size: 0.88rem;
+    display: flex;
+    gap: 0.85rem;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(14px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .momo-modal-card {
+    background: #FFF;
+    border-radius: 28px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+</style>
+</head>
+
+<body>
+  <div class="ambient-bg">
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+  </div>
+
+  <div class="auto-demo-bar">
+    <span style="font-family: var(--font-heading); font-weight: 900; color: var(--indigo-primary); font-size: 0.95rem;">
+      🎬 PRESENTATION MODE:
+    </span>
+    <button class="btn-demo-trigger" id="btnAutoDemo" onclick="runAutoDemoScript()">
+      <span>▶ Run 1-Click Auto-Demo Simulation</span>
+    </button>
+    <a href="index.html" style="font-size: 0.9rem; font-weight: 800; color: var(--indigo-primary); margin-left: auto;">← Back to React Landing Page</a>
+  </div>
+
+  <header>
+    <div class="nav-container">
+      <div class="brand-logo">
+        <a href="index.html">⚡ ChainSusu</a>
+        <span class="brand-badge">REACT NUNITO</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="net-indicator">
+          <div class="pulse-dot"></div>
+          <span>Hardhat Localnet :8545</span>
+        </div>
+
+        <div class="momo-login-box">
+          <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 800;">ACTIVE WALLET:</span>
+          <select id="momoUserSelect" class="momo-select" onchange="switchDemoUser(this.value)">
+            <option value="0">Kwesi Appiah (MoMo: 0244112233)</option>
+            <option value="1">Efua Mensah (MoMo: 0208990011)</option>
+            <option value="2">Ama Serwaa (MoMo: 0557665544)</option>
+            <option value="metamask">🦊 MetaMask Web3 Provider</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="hero-card">
+      <div class="hero-header">
+        <div>
+          <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--indigo-primary); font-weight: 800; margin-bottom: 0.4rem;">
+            AUTONOMOUS SAVINGS GROUP #0
+          </div>
+          <h1 class="hero-title">Rotating Savings Protocol</h1>
+          <p style="font-size: 1.05rem; color: var(--text-secondary); margin-top: 0.4rem; font-weight: 700;" id="groupCycleText">Round 1 of 3 &bull; Loading rotation state...</p>
+        </div>
+
+        <div class="pot-highlight-card">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #B45309; font-weight: 800;">TOTAL ROUND POT</div>
+          <div class="pot-amount" id="statPotVal">GHS 0</div>
+          <div style="font-size: 0.85rem; font-weight: 800; color: #92400E;">TARGET: GHS 1,500</div>
+        </div>
+      </div>
+
+      <div class="round-progress-box">
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 900; font-family: var(--font-heading); margin-bottom: 0.6rem;">
+          <span style="color: var(--text-secondary);">ROUND CONTRIBUTION PROGRESS</span>
+          <span id="progressPercentText" style="color: var(--indigo-primary); font-family: var(--font-mono);">0% COMPLETE</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-two-col">
+      <div>
+        <div class="user-portal-card">
+          <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: var(--indigo-gradient); color: #FFF; display: flex; align-items: center; justify-content: center; font-family: var(--font-title); font-size: 1.4rem; font-weight: 1000;" id="portalAvatar">KA</div>
+            <div>
+              <div style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 900;" id="portalName">Kwesi Appiah (YOU)</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.15rem; font-weight: 700;" id="portalSub">MoMo: 0244112233 &bull; Score: 50/100</div>
+            </div>
+          </div>
+          <div style="margin-top: 1.25rem;">
+            <button class="btn-gold" id="portalPayBtn" onclick="contributeAsActiveUser()">
+              <span>Pay GHS 500 via Mobile Money</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <div class="card-title">
+              <span>👥 Members & Reliability Gauges</span>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); font-weight: 800;">3 MEMBERS</span>
+          </div>
+
+          <div id="memberList"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="glass-card" style="margin-bottom: 2rem; text-align: center;">
+          <div class="glass-card-header">
+            <div class="card-title">
+              <span>🔄 Live Contract Rotation Wheel</span>
+            </div>
+            <span class="badge-pot-target">AUTO DISBURSAL</span>
+          </div>
+
+          <div style="max-width: 440px; margin: 0 auto;">
+            <svg viewBox="0 0 500 500" width="100%" height="100%" id="svgRotationCanvas">
+              <g id="svgDynamicLayer"></g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <div class="card-title">
+              <span>📜 Live Protocol Ledger</span>
+            </div>
+            <span style="font-size: 0.78rem; color: var(--emerald-primary); font-family: var(--font-mono); font-weight: 800;">● SYNCED</span>
+          </div>
+
+          <div class="activity-feed" id="activityFeed">
+            <div class="activity-item">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); min-width: 60px;">READY</span>
+              <div>Connected to local Hardhat node at <strong>http://127.0.0.1:8545</strong>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="momoModal">
+    <div class="momo-modal-card">
+      <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">📲</div>
+      <h3 style="font-family: var(--font-title); font-size: 1.5rem; font-weight: 900; margin-bottom: 0.4rem;">Mobile Money Express</h3>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 700;" id="modalSubText">Authorize GHS 500 deposit for Kwesi Appiah?</p>
+
+      <div style="display: flex; justify-content: center; gap: 0.75rem; margin: 1.5rem 0;">
+        <div style="background: #EEF2FF; border: 1.5px solid var(--indigo-primary); padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.78rem; font-weight: 900; color: var(--indigo-primary);">MTN MoMo</div>
+        <div style="background: var(--bg-subtle); padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.78rem; font-weight: 800; color: var(--text-muted);">Telecel Cash</div>
+        <div style="background: var(--bg-subtle); padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.78rem; font-weight: 800; color: var(--text-muted);">AT Money</div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn-gold" style="background: #E2E8F0; color: var(--text-secondary); box-shadow: none;" onclick="closeMomoModal()">Cancel</button>
+        <button class="btn-gold" onclick="confirmMomoDeposit()">Confirm Deposit</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const RPC_URL = "http://127.0.0.1:8545";
+  const ACTUAL_DEMO_KEYS = [
+    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+    "0x5de4111584e49d4c6f68f69962d819388f55853118b577fdf3ac378d45650364"
+  ];
+
+  const MEMBER_NAMES = ["Kwesi Appiah", "Efua Mensah", "Ama Serwaa"];
+  const MEMBER_PHONES = ["0244112233", "0208990011", "0557665544"];
+  const MEMBER_INITIALS = ["KA", "EM", "AS"];
+
+  let config = null;
+  let provider = null;
+  let contract = null;
+  let wallets = [];
+  let groupId = 0;
+  let activeUserIndex = 0;
+  let pendingPayMemberIndex = null;
+  let web3Signer = null;
+  let web3Address = null;
+  let cachedMembers = [];
+  let isAutoDemoRunning = false;
+
+  let audioCtx = null;
+  function getAudioContext() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  function playChimeSound() {
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch(e){}
+  }
+
+  function playCelebrationSound() {
+    try {
+      const ctx = getAudioContext();
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.08 + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * 0.08);
+        osc.stop(ctx.currentTime + idx * 0.08 + 0.4);
+      });
+    } catch(e){}
+  }
+
+  function triggerConfettiAnimation() {
+    if (typeof confetti === "function") {
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+  }
+
+  function addActivity(msg) {
+    const feed = document.getElementById("activityFeed");
+    const item = document.createElement("div");
+    item.className = "activity-item";
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0];
+    item.innerHTML = `
+      <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); min-width: 60px;">${timeStr}</span>
+      <div>${msg}</div>
+    `;
+    feed.insertBefore(item, feed.firstChild);
+  }
+
+  async function switchDemoUser(val) {
+    if (val === "metamask") {
+      const success = await connectMetaMask();
+      if (!success) document.getElementById("momoUserSelect").value = activeUserIndex;
+    } else {
+      activeUserIndex = parseInt(val, 10);
+      addActivity(`Switched active wallet to <strong>${MEMBER_NAMES[activeUserIndex]}</strong>.`);
+      refreshState();
+    }
+  }
+
+  async function connectMetaMask() {
+    if (!window.ethereum) {
+      alert("MetaMask extension not found.");
+      return false;
+    }
+    try {
+      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+      await browserProvider.send("eth_requestAccounts", []);
+      web3Signer = await browserProvider.getSigner();
+      web3Address = await web3Signer.getAddress();
+      
+      const net = await browserProvider.getNetwork();
+      if (net.chainId !== 31337n) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x7a69' }],
+          });
+        } catch (switchErr) {
+          if (switchErr.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x7a69',
+                chainName: 'Hardhat Localhost (8545)',
+                rpcUrls: ['http://127.0.0.1:8545'],
+                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 }
+              }],
+            });
+          }
+        }
+      }
+
+      activeUserIndex = "metamask";
+      addActivity(`🦊 MetaMask Connected: ${shortenAddress(web3Address)}`);
+      return true;
+
+    } catch (e) {
+      addActivity(`MetaMask error: ${e.message}`);
+      return false;
+    }
+  }
+
+  async function init() {
+    try {
+      const res = await fetch("contract-config.json");
+      config = await res.json();
+    } catch (e) {
+      addActivity("Failed to load contract-config.json.");
+      return;
+    }
+
+    try {
+      provider = new ethers.JsonRpcProvider(RPC_URL);
+      wallets = ACTUAL_DEMO_KEYS.map(k => new ethers.Wallet(k, provider));
+      contract = new ethers.Contract(config.address, config.abi, provider);
+
+      setupEventListeners();
+      await refreshState();
+      setInterval(refreshState, 4000);
+
+    } catch (e) {
+      addActivity("RPC connection error to local Hardhat network.");
+    }
+  }
+
+  function setupEventListeners() {
+    try {
+      contract.on("ContributionMade", (evtGroupId, member, round) => {
+        if (Number(evtGroupId) === groupId) {
+          const name = getMemberName(member);
+          playChimeSound();
+          addActivity(`<strong>${name}</strong> deposited GHS 500 via Mobile Money.`);
+        }
+      });
+
+      contract.on("PayoutReleased", (evtGroupId, recipient, amount, round) => {
+        if (Number(evtGroupId) === groupId) {
+          const name = getMemberName(recipient);
+          playCelebrationSound();
+          triggerConfettiAnimation();
+          addActivity(`🎉 <strong>${name}</strong> automatically received full GHS 1,500 pot payout!`);
+        }
+      });
+    } catch (e) {
+      console.warn("Event setup error:", e);
+    }
+  }
+
+  function getMemberName(addr) {
+    const index = cachedMembers.findIndex(m => m.toLowerCase() === addr.toLowerCase());
+    return index >= 0 ? MEMBER_NAMES[index] : shortenAddress(addr);
+  }
+
+  function shortenAddress(addr) {
+    if (!addr) return "";
+    return addr.slice(0, 6) + "…" + addr.slice(-4);
+  }
+
+  async function refreshState() {
+    if (!contract) return;
+
+    try {
+      const members = await contract.getGroupMembers(groupId);
+      const groupInfo = await contract.getGroupInfo(groupId);
+      
+      cachedMembers = members;
+
+      const [contributionAmount, currentRound, payoutIndex, roundDeadline, active] = groupInfo;
+      const currentRoundNum = Number(currentRound);
+      const payoutIdxNum = Number(payoutIndex);
+      const numMembers = members.length;
+      
+      const memberStates = [];
+      let totalPaidCount = 0;
+
+      for (let i = 0; i < members.length; i++) {
+        const addr = members[i];
+        const paid = await contract.hasPaid(groupId, addr);
+        const score = await contract.reliabilityScore(addr);
+        if (paid) totalPaidCount++;
+        
+        const isYou = (activeUserIndex === i) || (web3Address && addr.toLowerCase() === web3Address.toLowerCase());
+
+        memberStates.push({
+          index: i,
+          address: addr,
+          name: MEMBER_NAMES[i],
+          phone: MEMBER_PHONES[i],
+          initials: MEMBER_INITIALS[i],
+          paid: paid,
+          score: Number(score),
+          isRecipient: (i === payoutIdxNum),
+          isYou: isYou
+        });
+      }
+
+      const recipientName = MEMBER_NAMES[payoutIdxNum] ? MEMBER_NAMES[payoutIdxNum].split(' ')[0] : 'Beneficiary';
+
+      document.getElementById("groupCycleText").textContent = active 
+        ? `Round ${currentRoundNum + 1} of ${numMembers} &bull; ${recipientName} receives pot this round`
+        : `Rotation Cycle Complete &bull; All payouts settled!`;
+
+      document.getElementById("statPotVal").textContent = `GHS ${(totalPaidCount * 500).toLocaleString()}`;
+      
+      const percent = Math.round((totalPaidCount / numMembers) * 100);
+      document.getElementById("progressPercentText").textContent = `${percent}% COMPLETE`;
+      document.getElementById("progressBarFill").style.width = `${percent}%`;
+
+      updateUserActiveBanner(memberStates, active);
+      renderMembersRoster(memberStates, active);
+      renderSvgRotation(memberStates, currentRoundNum, totalPaidCount * 500, active);
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function updateUserActiveBanner(memberStates, active) {
+    if (activeUserIndex === "metamask" && web3Address) {
+      document.getElementById("portalAvatar").textContent = "🦊";
+      document.getElementById("portalName").textContent = `MetaMask Wallet (YOU)`;
+      document.getElementById("portalSub").textContent = `Connected Address: ${shortenAddress(web3Address)}`;
+      const btn = document.getElementById("portalPayBtn");
+      btn.textContent = "Pay GHS 500 via MetaMask";
+      btn.disabled = !active;
+      return;
+    }
+
+    const currentMember = memberStates[activeUserIndex] || memberStates[0];
+    if (currentMember) {
+      document.getElementById("portalAvatar").textContent = currentMember.initials;
+      document.getElementById("portalName").textContent = `${currentMember.name} (YOU)`;
+      
+      const roleText = currentMember.isRecipient ? "★ YOU ARE THIS ROUND'S BENEFICIARY!" : "Rotation Member";
+      document.getElementById("portalSub").textContent = `MoMo: ${currentMember.phone} &bull; Score: ${currentMember.score}/100 &bull; ${roleText}`;
+
+      const btn = document.getElementById("portalPayBtn");
+      if (!active) {
+        btn.disabled = true;
+        btn.textContent = "Rotation Cycle Complete";
+      } else if (currentMember.paid) {
+        btn.disabled = true;
+        btn.textContent = "✓ Contribution Confirmed via MoMo";
+      } else {
+        btn.disabled = false;
+        btn.textContent = "Pay GHS 500 via Mobile Money";
+      }
+    }
+  }
+
+  async function contributeAsActiveUser() {
+    if (activeUserIndex === "metamask") {
+      await payWithMetaMask();
+    } else {
+      openMomoModal(activeUserIndex);
+    }
+  }
+
+  async function payWithMetaMask() {
+    if (!web3Signer || !contract) return;
+    const btn = document.getElementById("portalPayBtn");
+    btn.disabled = true;
+    btn.textContent = "Confirm in MetaMask...";
+
+    try {
+      const contractWithSigner = contract.connect(web3Signer);
+      const info = await contract.getGroupInfo(groupId);
+      const tx = await contractWithSigner.contribute(groupId, { value: info.contributionAmount });
+      addActivity(`MetaMask transaction sent: ${tx.hash}`);
+      await tx.wait();
+      addActivity(`MetaMask contribution confirmed!`);
+      await refreshState();
+    } catch (e) {
+      addActivity(`MetaMask payment failed: ${e.reason || e.message}`);
+      refreshState();
+    }
+  }
+
+  function renderMembersRoster(memberStates, active) {
+    const container = document.getElementById("memberList");
+    container.innerHTML = "";
+
+    memberStates.forEach((m) => {
+      const card = document.createElement("div");
+      card.className = `member-pass-card ${m.isRecipient && active ? 'is-target' : ''}`;
+
+      const dashOffset = 126 - (126 * (Math.max(0, Math.min(100, m.score)) / 100));
+      const trustTier = m.score >= 80 ? "ELITE" : m.score >= 50 ? "RELIABLE" : "BUILDING";
+      const scoreColor = m.score >= 80 ? "#059669" : m.score >= 50 ? "#D97706" : "#E11D48";
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: ${m.paid ? '#D1FAE5' : '#EEF2FF'}; color: ${m.paid ? '#047857' : '#4F46E5'}; display: flex; align-items: center; justify-content: center; font-family: var(--font-title); font-size: 1.1rem; font-weight: 1000;">
+              ${m.initials}
+            </div>
+            <div>
+              <div style="font-family: var(--font-title); font-size: 1.05rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem;">
+                ${m.name}
+                ${m.isYou ? `<span style="font-size:0.65rem; background:#E2E8F0; padding:0.15rem 0.4rem; border-radius:4px; font-family:var(--font-mono);">YOU</span>` : ''}
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary); font-weight: 700;">
+                MoMo: ${m.phone} &bull; ${shortenAddress(m.address)}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            ${m.isRecipient && active 
+              ? `<span class="badge-pot-target">★ Gets Pot</span>` 
+              : `<span class="badge-status-pill ${m.paid ? 'status-paid' : 'status-pending'}">${m.paid ? '✓ Paid' : 'Pending'}</span>`}
+          </div>
+        </div>
+
+        <div class="reliability-meter-box">
+          <div class="radial-score-container">
+            <svg viewBox="0 0 48 48" class="radial-score-svg" width="48" height="48">
+              <circle cx="24" cy="24" r="20" fill="none" stroke-width="4" class="radial-score-bg"/>
+              <circle cx="24" cy="24" r="20" fill="none" stroke-width="4" class="radial-score-fill" stroke="${scoreColor}" style="stroke-dashoffset: ${dashOffset};"/>
+            </svg>
+            <div class="radial-score-val" style="color: ${scoreColor};">${m.score}</div>
+          </div>
+          <div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); font-weight: 800;">TRUST RATING</div>
+            <div style="font-family: var(--font-heading); font-size: 0.88rem; font-weight: 900; color: ${scoreColor};">${trustTier} SCORE (${m.score}/100)</div>
+          </div>
+        </div>
+
+        <div>
+          <button 
+            class="btn-gold" 
+            style="${m.paid ? 'background: #D1FAE5; color: #047857; border: 1px solid #10B981; box-shadow: none;' : ''}"
+            id="btn-pay-${m.index}"
+            ${(m.paid || !active) ? 'disabled' : ''} 
+            onclick="openMomoModal(${m.index})"
+          >
+            <span>${m.paid ? '✓ Contribution Confirmed' : `Pay GHS 500 via MoMo (${m.name.split(' ')[0]})`}</span>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  async function runAutoDemoScript() {
+    if (isAutoDemoRunning) return;
+    isAutoDemoRunning = true;
+    const btn = document.getElementById("btnAutoDemo");
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳ Running Auto Demo...</span>`;
+
+    addActivity(`🚀 <strong>Auto-Demo Started:</strong> Executing automated cycle sequence.`);
+
+    for (let i = 0; i < 3; i++) {
+      const wallet = wallets[i];
+      const name = MEMBER_NAMES[i];
+
+      try {
+        const paid = await contract.hasPaid(groupId, wallet.address);
+        if (!paid) {
+          addActivity(`📲 Auto-paying deposit for <strong>${name}</strong>...`);
+          const contractWithSigner = contract.connect(wallet);
+          const info = await contract.getGroupInfo(groupId);
+          const tx = await contractWithSigner.contribute(groupId, { value: info.contributionAmount });
+          await tx.wait();
+          await refreshState();
+          await new Promise(r => setTimeout(r, 1500));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<span>▶ Run 1-Click Auto-Demo Simulation</span>`;
+    isAutoDemoRunning = false;
+    addActivity(`✅ <strong>Auto-Demo Complete!</strong> Round completed and payout released.`);
+  }
+
+  function openMomoModal(memberIndex) {
+    pendingPayMemberIndex = memberIndex;
+    const name = MEMBER_NAMES[memberIndex];
+    const phone = MEMBER_PHONES[memberIndex];
+    document.getElementById("modalSubText").textContent = `Authorize GHS 500 deposit for ${name} (${phone})?`;
+    document.getElementById("momoModal").classList.add("active");
+  }
+
+  function closeMomoModal() {
+    document.getElementById("momoModal").classList.remove("active");
+    pendingPayMemberIndex = null;
+  }
+
+  async function confirmMomoDeposit() {
+    if (pendingPayMemberIndex === null) return;
+    const index = pendingPayMemberIndex;
+    closeMomoModal();
+
+    const btn = document.getElementById(`btn-pay-${index}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Authorizing MoMo Deposit...";
+    }
+
+    const memberWallet = wallets[index];
+    const memberName = MEMBER_NAMES[index];
+
+    try {
+      const contractWithSigner = contract.connect(memberWallet);
+      const info = await contract.getGroupInfo(groupId);
+      const tx = await contractWithSigner.contribute(groupId, { value: info.contributionAmount });
+      await tx.wait();
+
+      await refreshState();
+
+    } catch (e) {
+      addActivity(`Failed deposit for ${memberName}: ${e.reason || e.message}`);
+      refreshState();
+    }
+  }
+
+  function renderSvgRotation(memberStates, currentRoundNum, potGhs, active) {
+    const layer = document.getElementById("svgDynamicLayer");
+    layer.innerHTML = "";
+
+    const centerX = 250;
+    const centerY = 250;
+    const radius = 145;
+    const numMembers = memberStates.length;
+
+    const centerGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    centerGroup.innerHTML = `
+      <rect x="155" y="200" width="190" height="100" class="svg-center-card" />
+      <text x="250" y="226" class="svg-text-sub" text-anchor="middle" letter-spacing="1.5">ROUND ${active ? currentRoundNum + 1 : 'DONE'}</text>
+      <text x="250" y="254" class="svg-text-title" text-anchor="middle" font-size="20">GHS ${potGhs.toLocaleString()}</text>
+      <text x="250" y="278" class="svg-text-sub" text-anchor="middle" fill="#64748b">${active ? 'TARGET: GHS 1,500' : 'CYCLE SETTLED'}</text>
+    `;
+    layer.appendChild(centerGroup);
+
+    memberStates.forEach((m, i) => {
+      const angle = (-Math.PI / 2) + (i * 2 * Math.PI / numMembers);
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      const nextAngle = (-Math.PI / 2) + (((i + 1) % numMembers) * 2 * Math.PI / numMembers);
+      const nextX = centerX + radius * Math.cos(nextAngle);
+      const nextY = centerY + radius * Math.sin(nextAngle);
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M ${x} ${y} A ${radius} ${radius} 0 0 1 ${nextX} ${nextY}`);
+      path.setAttribute("class", "svg-flow-path");
+      if (m.paid) {
+        path.setAttribute("stroke", "#10B981");
+        path.setAttribute("stroke-width", "3");
+      }
+      layer.appendChild(path);
+
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+      if (m.isRecipient && active) {
+        const halo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        halo.setAttribute("cx", x);
+        halo.setAttribute("cy", y);
+        halo.setAttribute("r", 36);
+        halo.setAttribute("fill", "none");
+        halo.setAttribute("stroke", "#F59E0B");
+        halo.setAttribute("stroke-width", "2.5");
+        halo.setAttribute("stroke-dasharray", "4, 4");
+        g.appendChild(halo);
+      }
+
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", 26);
+      
+      if (m.paid) {
+        circle.setAttribute("fill", "#10B981");
+        circle.setAttribute("stroke", "#047857");
+        circle.setAttribute("stroke-width", "2");
+      } else {
+        circle.setAttribute("fill", "#FFFFFF");
+        circle.setAttribute("stroke", m.isRecipient ? "#F59E0B" : "#CBD5E1");
+        circle.setAttribute("stroke-width", m.isRecipient ? "3.5" : "2");
+      }
+      g.appendChild(circle);
+
+      const avatarText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      avatarText.setAttribute("x", x);
+      avatarText.setAttribute("y", y + 5);
+      avatarText.setAttribute("text-anchor", "middle");
+      avatarText.setAttribute("font-family", "'Nunito', sans-serif");
+      avatarText.setAttribute("font-size", "13");
+      avatarText.setAttribute("font-weight", "900");
+      avatarText.setAttribute("fill", m.paid ? "#FFF" : "#0F172A");
+      avatarText.textContent = m.initials;
+      g.appendChild(avatarText);
+
+      let labelY = y;
+      let labelX = x;
+      let textAnchor = "middle";
+
+      if (y < centerY - 20) labelY = y - 42;
+      else if (y > centerY + 20) labelY = y + 48;
+      else {
+        if (x > centerX) { labelX = x + 44; textAnchor = "start"; }
+        else { labelX = x - 44; textAnchor = "end"; }
+      }
+
+      const labelName = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      labelName.setAttribute("x", labelX);
+      labelName.setAttribute("y", labelY);
+      labelName.setAttribute("text-anchor", textAnchor);
+      labelName.setAttribute("class", "svg-text-title");
+      labelName.setAttribute("font-size", "13");
+      labelName.textContent = (m.isYou ? "(YOU) " : "") + m.name.split(' ')[0];
+      g.appendChild(labelName);
+
+      const labelStatus = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      labelStatus.setAttribute("x", labelX);
+      labelStatus.setAttribute("y", labelY + 14);
+      labelStatus.setAttribute("text-anchor", textAnchor);
+      labelStatus.setAttribute("class", "svg-text-sub");
+      labelStatus.setAttribute("fill", m.isRecipient ? "#D97706" : m.paid ? "#059669" : "#64748B");
+      labelStatus.setAttribute("font-weight", m.isRecipient ? "800" : "600");
+      labelStatus.textContent = m.isRecipient ? "★ GETS POT" : m.paid ? "PAID" : "PENDING";
+      g.appendChild(labelStatus);
+
+      layer.appendChild(g);
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

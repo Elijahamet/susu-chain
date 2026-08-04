@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build Output
+frontend/dist/
+cache/
+
+# System / Temporary files
+.DS_Store
+*.log
+.env
