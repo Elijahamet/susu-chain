@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Zap, Shield, Phone, Lock, Unlock, Users, Plus, Key, 
-  ArrowRight, Sparkles, CheckCircle2, AlertTriangle, Globe, Star, Eye, EyeOff
+  ArrowRight, Sparkles, CheckCircle2, AlertTriangle, Globe, Star, Eye, EyeOff, TrendingUp, ShieldCheck, ChevronDown, Award, DollarSign
 } from 'lucide-react'
 
 export default function LandingPage({ onOpenDashboard }) {
@@ -13,6 +13,7 @@ export default function LandingPage({ onOpenDashboard }) {
   const [signUpPassword, setSignUpPassword] = useState("1234")
   const [confirmPassword, setConfirmPassword] = useState("1234")
   const [showPassword, setShowPassword] = useState(false)
+  const [openFaq, setOpenFaq] = useState(null)
 
   // Carrier Detection
   const getCarrierBadge = (phoneStr) => {
@@ -68,6 +69,19 @@ export default function LandingPage({ onOpenDashboard }) {
     onOpenDashboard()
   }
 
+  const liveStats = [
+    { label: "Total Volume Disbursed", value: "GHS 2,850,000+", icon: TrendingUp },
+    { label: "Active Market Circles", value: "540+ Circles", icon: Users },
+    { label: "Human Collector Risk", value: "0% (Zero Risk)", icon: ShieldCheck },
+    { label: "MoMo Disbursal Speed", value: "< 1 Sec Instant", icon: Zap }
+  ]
+
+  const featuredMarketCircles = [
+    { name: "Makola Market Women Susu Circle", pot: "GHS 1,500", members: "3 Traders", code: "1001", status: "Active Round #1", badgeColor: "#10B981" },
+    { name: "Kejetia Traders Union Circle", pot: "GHS 3,000", members: "3 Traders", code: "2002", status: "Filling Pot", badgeColor: "#F59E0B" },
+    { name: "Kantamanto Textile Savers", pot: "GHS 4,500", members: "3 Traders", code: "3030", status: "Active Round #2", badgeColor: "#6366F1" }
+  ]
+
   const protocolSteps = [
     {
       step: "01",
@@ -83,7 +97,7 @@ export default function LandingPage({ onOpenDashboard }) {
       icon: Lock,
       title: "Solidity Escrow Lock",
       desc: "Your money hold tight inside smart contract on Ethereum. Zero human custody, no collector fit run away.",
-      detail: "Verified smart contract: 0x5FbDB2315678afecb367f032d93F642f64180aa3.",
+      detail: "Verified smart contract: 0xcB2Ac979eCf770f0C3f7E19D78249Abb2501c40F.",
       notificationTitle: "Smart Contract Escrow Active",
       notificationBody: "GHS 1,000 locked safe inside zero-risk escrow."
     },
@@ -94,7 +108,7 @@ export default function LandingPage({ onOpenDashboard }) {
       desc: "Every time you pay on time, your trust score upgrade on-chain (0 to 100). Everyone see say you be reliable.",
       detail: "Calculated automatically per round completion.",
       notificationTitle: "Trust Score Boosted +10",
-      notificationBody: "Ama Appiah trust score upgraded to 60/100."
+      notificationBody: "Ama Appiah trust score upgraded to 98/100."
     },
     {
       step: "04",
@@ -107,9 +121,48 @@ export default function LandingPage({ onOpenDashboard }) {
     }
   ]
 
+  const marketVoices = [
+    {
+      name: "Ama Appiah",
+      market: "Makola Market, Accra",
+      trade: "Cloth & Lace Trader",
+      quote: "Before before, collector fit take our money travel. Now with ChainSusu, as soon as we all pay, the GHS 1,500 drop enter my MTN MoMo wallet sharp!",
+      rating: 5
+    },
+    {
+      name: "Kwesi Mensah",
+      market: "Kejetia Market, Kumasi",
+      trade: "Footwear Merchant",
+      quote: "Pure code, zero stories. My trust rating is 92/100 now. Kejetia traders union save GHS 3,000 every single month with zero fear.",
+      rating: 5
+    },
+    {
+      name: "Yaa Asantewaa",
+      market: "Kantamanto Market, Accra",
+      trade: "Textile Exporter",
+      quote: "Very simple for phone. You enter your 4-digit MoMo PIN, and the smart contract handles everything automatically!",
+      rating: 5
+    }
+  ]
+
+  const faqs = [
+    {
+      q: "What is ChainSusu?",
+      a: "ChainSusu is an autonomous rotating savings protocol designed specifically for Ghanaian market traders. It replaces traditional human Susu collectors with immutable Ethereum smart contracts, guaranteeing 100% security for your money."
+    },
+    {
+      q: "How does the Mobile Money payment work?",
+      a: "You simply authorize your contribution using your MTN MoMo, Telecel Cash, or AT Money 4-digit PIN. Funds land directly into the smart contract escrow. The second all members deposit, the full pot transfers instantly to that round's beneficiary."
+    },
+    {
+      q: "Can the collector run away with our money?",
+      a: "No! There is zero human collector custody. No single person (not even the admin) can touch or withdraw funds. Only the smart contract can release money when all members contribute."
+    }
+  ]
+
   return (
     <div>
-      {/* Header */}
+      {/* Top Glass Header */}
       <header>
         <div className="nav-container">
           <motion.div 
@@ -118,17 +171,19 @@ export default function LandingPage({ onOpenDashboard }) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Zap style={{ color: "var(--indigo-primary)" }} size={24} />
+            <Zap style={{ color: "var(--indigo-primary)" }} size={26} />
             <span>ChainSusu</span>
-            <span className="brand-badge">PROTOCOL</span>
+            <span className="brand-badge">SOLICITY ESCROW</span>
           </motion.div>
 
           <div className="nav-links">
+            <a href="#stats">Live Volume</a>
+            <a href="#circles">Market Circles</a>
             <a href="#pipeline">How It Works</a>
-            <a href="#comparison">Why ChainSusu</a>
+            <a href="#voices">Market Voices</a>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
             <button className="btn-outline" onClick={() => setIsSignupOpen(true)}>Sign Up Free</button>
             <motion.button 
               className="btn-primary" 
@@ -143,47 +198,81 @@ export default function LandingPage({ onOpenDashboard }) {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="hero-section" style={{ maxWidth: "1280px", margin: "0 auto", padding: "4rem 1.25rem 3rem", textAlign: "center" }}>
+      {/* BREATHTAKING HERO SECTION */}
+      <section className="hero-section" style={{ maxWidth: "1280px", margin: "0 auto", padding: "4.5rem 1.25rem 3.5rem", textAlign: "center" }}>
+        
         <motion.div 
           className="hero-pill"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem", background: "#EEF2FF", border: "1.5px solid rgba(79, 70, 229, 0.3)", padding: "0.45rem 1.2rem", borderRadius: "50px", fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--indigo-primary)", fontWeight: 800, marginBottom: "1.75rem" }}
+          style={{ 
+            display: "inline-flex", 
+            alignItems: "center", 
+            gap: "0.6rem", 
+            background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)", 
+            border: "1.5px solid rgba(79, 70, 229, 0.35)", 
+            padding: "0.5rem 1.35rem", 
+            borderRadius: "50px", 
+            fontFamily: "var(--font-mono)", 
+            fontSize: "0.82rem", 
+            color: "var(--indigo-primary)", 
+            fontWeight: 800, 
+            marginBottom: "2rem",
+            boxShadow: "0 8px 20px rgba(79, 70, 229, 0.12)" 
+          }}
         >
+          <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10B981", boxShadow: "0 0 10px #10B981" }}></span>
           <Sparkles size={16} />
-          <span>AUTONOMOUS ROTATING SAVINGS PROTOCOL</span>
+          <span>AUTONOMOUS ROTATING SAVINGS PROTOCOL &bull; GHANA MOMO</span>
         </motion.div>
 
         <motion.h1 
           className="hero-headline"
-          style={{ fontFamily: "var(--font-main)", fontSize: "4rem", fontWeight: 1000, lineHeight: 1.08, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "1.5rem", maxWidth: "950px", marginLeft: "auto", marginRight: "auto" }}
+          style={{ 
+            fontFamily: "var(--font-main)", 
+            fontSize: "4.2rem", 
+            fontWeight: 1000, 
+            lineHeight: 1.08, 
+            letterSpacing: "-0.03em", 
+            marginBottom: "1.5rem", 
+            maxWidth: "1000px", 
+            marginLeft: "auto", 
+            marginRight: "auto"
+          }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
         >
-          Save together sharp sharp. Zero collector stories. Pure code.
+          Save together sharp sharp.{' '}
+          <span style={{ 
+            background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%)", 
+            WebkitBackgroundClip: "text", 
+            WebkitTextFillColor: "transparent" 
+          }}>
+            Zero collector stories.
+          </span>{' '}
+          Pure code.
         </motion.h1>
 
         <motion.p 
-          style={{ fontSize: "1.2rem", color: "var(--text-secondary)", maxWidth: "780px", margin: "0 auto 2.5rem", fontWeight: 700 }}
+          style={{ fontSize: "1.25rem", color: "var(--text-secondary)", maxWidth: "800px", margin: "0 auto 2.75rem", fontWeight: 700, lineHeight: 1.6 }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          Chale, no more collector wahala. ChainSusu replace informal human collectors with smart contracts. Save on schedule and get your MoMo payout sharp.
+          Chale, no more collector wahala. ChainSusu replace informal human collectors with smart contracts. Save on schedule and receive your pot money directly into your Mobile Money wallet sharp!
         </motion.p>
 
         <motion.div 
-          style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}
+          style={{ display: "flex", gap: "1.1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "4rem" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           <motion.button 
             className="btn-primary" 
-            style={{ padding: "0.9rem 2.2rem", fontSize: "1rem" }} 
+            style={{ padding: "1rem 2.4rem", fontSize: "1.05rem", borderRadius: "18px" }} 
             onClick={() => setIsSignupOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -193,22 +282,107 @@ export default function LandingPage({ onOpenDashboard }) {
           </motion.button>
           <motion.button 
             className="btn-outline" 
-            style={{ padding: "0.9rem 2rem", fontSize: "1rem" }} 
+            style={{ padding: "1rem 2.2rem", fontSize: "1.05rem", borderRadius: "18px" }} 
             onClick={onOpenDashboard}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span>Open Dashboard</span>
+            <span>Open Protocol Dashboard</span>
             <ArrowRight size={18} />
           </motion.button>
         </motion.div>
+
+        {/* LIVE METRICS DASHBOARD BANNER */}
+        <div id="stats" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem", maxWidth: "1150px", margin: "0 auto 4.5rem" }}>
+          {liveStats.map((st, i) => {
+            const IconComp = st.icon
+            return (
+              <motion.div 
+                key={st.label}
+                style={{ 
+                  background: "#FFF", 
+                  border: "1.5px solid var(--border-subtle)", 
+                  borderRadius: "24px", 
+                  padding: "1.4rem", 
+                  boxShadow: "var(--shadow-glass)",
+                  textAlign: "left"
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -4 }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--indigo-primary)", marginBottom: "0.5rem" }}>
+                  <IconComp size={20} />
+                  <span style={{ fontSize: "0.78rem", fontFamily: "var(--font-mono)", fontWeight: 800, textTransform: "uppercase" }}>{st.label}</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-main)", fontSize: "1.7rem", fontWeight: 1000, color: "var(--text-primary)" }}>
+                  {st.value}
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* FEATURED GHANAIAN MARKET CIRCLES SHOWCASE */}
+      <section id="circles" style={{ maxWidth: "1280px", margin: "0 auto 5rem", padding: "0 1.25rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--indigo-primary)", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>COMMUNITY VAULTS</div>
+          <h2 style={{ fontFamily: "var(--font-main)", fontSize: "2.5rem", fontWeight: 1000, marginTop: "0.2rem" }}>Active Ghanaian Market Circles</h2>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+          {featuredMarketCircles.map((mc, idx) => (
+            <motion.div 
+              key={mc.name}
+              style={{ 
+                background: "#FFF", 
+                border: "1.5px solid var(--border-subtle)", 
+                borderRadius: "26px", 
+                padding: "1.75rem", 
+                boxShadow: "var(--shadow-glass)",
+                position: "relative",
+                textAlign: "left"
+              }}
+              whileHover={{ y: -5 }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <span style={{ background: `${mc.badgeColor}15`, color: mc.badgeColor, border: `1px solid ${mc.badgeColor}`, fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 800, padding: "0.25rem 0.65rem", borderRadius: "8px" }}>
+                  {mc.status}
+                </span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--indigo-primary)", fontWeight: 800 }}>CODE: {mc.code}</span>
+              </div>
+
+              <h3 style={{ fontFamily: "var(--font-main)", fontSize: "1.25rem", fontWeight: 1000, color: "var(--text-primary)", marginBottom: "0.4rem" }}>
+                {mc.name}
+              </h3>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "1.25rem 0 1.5rem", background: "var(--bg-subtle)", padding: "0.9rem 1.1rem", borderRadius: "16px" }}>
+                <div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase" }}>Target Pot</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 1000, color: "var(--amber-primary)", fontFamily: "var(--font-mono)" }}>{mc.pot}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase" }}>Roster Size</div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 900, color: "var(--text-primary)" }}>{mc.members}</div>
+                </div>
+              </div>
+
+              <button className="btn-primary" style={{ width: "100%", justifyContent: "center", borderRadius: "14px" }} onClick={onOpenDashboard}>
+                <span>Join Market Circle</span>
+                <ArrowRight size={16} />
+              </button>
+            </motion.div>
+          ))}
+        </div>
       </section>
 
       {/* PIPELINE SECTION WITH RESPONSIVE GRID */}
-      <section style={{ maxWidth: "1280px", margin: "2.5rem auto 5rem", padding: "0 1.25rem" }} id="pipeline">
-        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+      <section style={{ maxWidth: "1280px", margin: "0 auto 6rem", padding: "0 1.25rem" }} id="pipeline">
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--indigo-primary)", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>PROTOCOL PIPELINE</div>
-          <h2 style={{ fontFamily: "var(--font-main)", fontSize: "2.4rem", fontWeight: 1000, marginTop: "0.2rem" }}>How ChainSusu Dey Work</h2>
+          <h2 style={{ fontFamily: "var(--font-main)", fontSize: "2.5rem", fontWeight: 1000, marginTop: "0.2rem" }}>How ChainSusu Works Sharp</h2>
         </div>
 
         <div className="pipeline-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: "2.5rem", alignItems: "center" }}>
@@ -224,10 +398,10 @@ export default function LandingPage({ onOpenDashboard }) {
                     style={{
                       background: activeStep === idx ? "#FFF" : "var(--bg-subtle)",
                       border: activeStep === idx ? "2px solid var(--indigo-primary)" : "1.5px solid var(--border-subtle)",
-                      borderRadius: "20px",
+                      borderRadius: "22px",
                       padding: "1.25rem",
                       cursor: "pointer",
-                      boxShadow: activeStep === idx ? "var(--shadow-md)" : "var(--shadow-sm)"
+                      boxShadow: activeStep === idx ? "var(--shadow-glass)" : "var(--shadow-sm)"
                     }}
                     whileHover={{ y: -3 }}
                   >
@@ -243,7 +417,7 @@ export default function LandingPage({ onOpenDashboard }) {
 
             {/* Step Detail */}
             <motion.div 
-              style={{ background: "#FFF", border: "2px solid var(--border-subtle)", borderRadius: "28px", padding: "2rem", boxShadow: "var(--shadow-lg)", textAlign: "left" }}
+              style={{ background: "#FFF", border: "2px solid var(--border-subtle)", borderRadius: "28px", padding: "2rem", boxShadow: "var(--shadow-glass)", textAlign: "left" }}
               key={activeStep}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -259,7 +433,7 @@ export default function LandingPage({ onOpenDashboard }) {
                 </div>
               </div>
 
-              <p style={{ fontSize: "1rem", color: "var(--text-secondary)", fontWeight: 700, marginBottom: "1.25rem" }}>
+              <p style={{ fontSize: "1.05rem", color: "var(--text-secondary)", fontWeight: 700, marginBottom: "1.25rem" }}>
                 {protocolSteps[activeStep].desc}
               </p>
 
@@ -327,7 +501,84 @@ export default function LandingPage({ onOpenDashboard }) {
         </div>
       </section>
 
-      {/* REALISTIC SIGN UP MODAL (PHONE NUMBER + SECURITY PASSWORD/PIN) */}
+      {/* MARKET VOICES / TRADER REVIEWS SECTION */}
+      <section id="voices" style={{ background: "#EEF2FF", borderTop: "1px solid var(--border-subtle)", borderBottom: "1px solid var(--border-subtle)", padding: "5rem 1.25rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--indigo-primary)", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>MARKET VOICES</div>
+            <h2 style={{ fontFamily: "var(--font-main)", fontSize: "2.5rem", fontWeight: 1000, marginTop: "0.2rem" }}>Loved by Ghanaian Market Traders</h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.75rem" }}>
+            {marketVoices.map((mv, i) => (
+              <motion.div 
+                key={mv.name}
+                style={{ 
+                  background: "#FFF", 
+                  border: "1.5px solid var(--border-subtle)", 
+                  borderRadius: "26px", 
+                  padding: "1.75rem", 
+                  boxShadow: "var(--shadow-glass)",
+                  textAlign: "left"
+                }}
+                whileHover={{ y: -4 }}
+              >
+                <div style={{ display: "flex", gap: "0.2rem", color: "#F59E0B", marginBottom: "1rem" }}>
+                  {[...Array(mv.rating)].map((_, idx) => (
+                    <Star key={idx} size={18} fill="#F59E0B" />
+                  ))}
+                </div>
+
+                <p style={{ fontSize: "1.05rem", color: "var(--text-secondary)", fontWeight: 700, fontStyle: "italic", marginBottom: "1.5rem", lineHeight: 1.6 }}>
+                  "{mv.quote}"
+                </p>
+
+                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-main)", fontSize: "1.1rem", fontWeight: 1000, color: "var(--text-primary)" }}>{mv.name}</div>
+                    <div style={{ fontSize: "0.82rem", color: "var(--text-muted)", fontWeight: 700 }}>{mv.trade}</div>
+                  </div>
+                  <div style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", color: "var(--indigo-primary)", fontWeight: 800, background: "#EEF2FF", padding: "0.25rem 0.6rem", borderRadius: "8px" }}>
+                    {mv.market}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ ACCORDION SECTION */}
+      <section style={{ maxWidth: "860px", margin: "5rem auto", padding: "0 1.25rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--indigo-primary)", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>FREQUENTLY ASKED QUESTIONS</div>
+          <h2 style={{ fontFamily: "var(--font-main)", fontSize: "2.4rem", fontWeight: 1000, marginTop: "0.2rem" }}>Got Questions? We Get Answers.</h2>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
+          {faqs.map((faq, idx) => (
+            <div 
+              key={idx}
+              style={{ background: "#FFF", border: "1.5px solid var(--border-subtle)", borderRadius: "20px", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}
+            >
+              <button 
+                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                style={{ width: "100%", padding: "1.25rem 1.5rem", background: "none", border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: "var(--font-main)", fontSize: "1.1rem", fontWeight: 900, color: "var(--text-primary)", cursor: "pointer", textAlign: "left" }}
+              >
+                <span>{faq.q}</span>
+                <ChevronDown size={20} style={{ transform: openFaq === idx ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease", color: "var(--indigo-primary)" }} />
+              </button>
+              {openFaq === idx && (
+                <div style={{ padding: "0 1.5rem 1.25rem", color: "var(--text-secondary)", fontWeight: 700, fontSize: "0.98rem", borderTop: "1px solid var(--bg-subtle)" }}>
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* REALISTIC SIGN UP MODAL */}
       <div className={`modal-overlay ${isSignupOpen ? "active" : ""}`}>
         <motion.div 
           className="signup-modal-card"
@@ -407,7 +658,7 @@ export default function LandingPage({ onOpenDashboard }) {
       </div>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "3rem 1.5rem 2rem", textAlign: "center", fontSize: "0.9rem", color: "var(--text-muted)" }}>
+      <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "3rem 1.5rem 2rem", textAlign: "center", fontSize: "0.9rem", color: "var(--text-muted)", background: "#FFF" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
           <div style={{ fontFamily: "var(--font-main)", fontSize: "1.3rem", fontWeight: 1000, color: "var(--text-primary)", marginBottom: "0.5rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
             <Zap size={20} style={{ color: "var(--indigo-primary)" }} />
