@@ -1,6 +1,5 @@
 
 
-
 # ChainSusu — Autonomous Rotating Savings Protocol
 
 > **"No collector holding the money. No one to run away. Just code — and now everyone can see who's reliable before they trust them with their savings."**
